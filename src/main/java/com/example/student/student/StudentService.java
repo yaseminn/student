@@ -1,19 +1,31 @@
 package com.example.student.student;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentService {
+    private final StudentRepository studentRepository;
+
+    @Autowired
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
+
     public List<Student> getAllStudents(){
-        return List.of(new Student(1L,
-                "YASEMİN",
-                39,
-                LocalDate.of(1985, Month.APRIL,14),
-                "yasemin@th.com"));
+        return studentRepository.findAll();
+    }
+
+    public void addNewStudent(Student student) {
+        Optional<Student> studentRepositoryByEmail =
+                studentRepository.findByEmail(student.getEmail());
+        if(studentRepositoryByEmail.isPresent()) {
+            throw new IllegalStateException("Student already exists");
+        }
+        studentRepository.save(student);
     }
 }
 
